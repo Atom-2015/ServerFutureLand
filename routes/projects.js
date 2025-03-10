@@ -18,6 +18,9 @@ const ProjectControler = require('../controler/Project_Crontroler')
 router.post('/createProject' , ProjectControler.HandleStoreProjects);
 
 
+router.get('/allProjects' , ProjectControler.HandleAllProjects)
+
+
 
 
  
