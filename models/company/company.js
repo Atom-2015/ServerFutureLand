@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 
 const CompanySchema = new mongoose.Schema(
   {
+    master_company:{
+      type:String,
+      required:true
+    },
     company_name: {
       type: String,
       required: true,

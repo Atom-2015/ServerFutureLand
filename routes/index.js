@@ -20,6 +20,9 @@ router.get('/healthcheck' , MainControler.healthchecker);
 router.use('/project' , require('./projects') )
 
 
+router.use('/company' , require('./company'))
+
+
 
 
  

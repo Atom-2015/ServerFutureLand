@@ -2,9 +2,13 @@ const mongoose = require('mongoose');
 
 const ProjectSchema = new mongoose.Schema(
   {
+    project_name:{
+      type:String,
+      required:true,
+    },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company', // Reference to Company schema
+      ref: 'Company',
       required: true,
     },
     startDate: {
@@ -18,15 +22,37 @@ const ProjectSchema = new mongoose.Schema(
     contractor: {
       type: String,
       required: true,
+      trim: true,
     },
     cost: {
       type: Number,
       required: true,
+      min: 0,
     },
-    stages: {
+    status: {
       type: String,
-      enum: ['planning', 'in-progress', 'completed', 'on-hold'], // Enum for project stages
+      enum: ['planning', 'in-progress', 'completed', 'on-hold'],
       default: 'planning',
+    },
+    sector: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    country: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    state: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true,
     },
     kml: [
       {
