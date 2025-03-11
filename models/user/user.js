@@ -70,6 +70,9 @@ const Userschema = new  mongoose.Schema({
         ref:'Company',
         required:true
     },
+    phone:{
+      type:Number
+    },
     user_role:{
         type:String,
         enum:['Super Admin' , 'Admin' , 'User'],
