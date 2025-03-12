@@ -62,7 +62,30 @@ const ProjectSchema = new mongoose.Schema(
         },
       },
     ],
+    district: {
+      districtMagistrate: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      population: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
+      registrarOffice: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      circleRate: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
+    },
   },
+ 
   { timestamps: true }
 );
 

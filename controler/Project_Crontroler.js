@@ -69,3 +69,49 @@ module.exports.HandleAllProjects = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
+
+
+
+
+// Add Additional Value in project  
+ 
+
+module.exports.HandleAdditionalData = async (req, res) => {
+    try {
+        const { districtMagistrate, population, registrarOffice, circleRate } = req.body;
+        const projectId = req.headers["x-project-id"];
+
+        // Validate input fields
+        if ([districtMagistrate, population, registrarOffice, circleRate].some(val => !val || val === "")) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        // Ensure population is a valid number
+        if (isNaN(population) || population <= 0) {
+            return res.status(400).json({ message: "Population must be a valid positive number" });
+        }
+
+        // Check if project exists
+        const project = await Project.findById(projectId);
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+
+        // Update project with district details
+        project.district = {
+            districtMagistrate,
+            population,
+            registrarOffice,
+            circleRate
+        };
+
+        await project.save();
+        res.status(200).json({ message: "District details added successfully", data: project });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+

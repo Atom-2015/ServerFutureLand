@@ -21,6 +21,10 @@ router.post('/createProject' , ProjectControler.HandleStoreProjects);
 router.get('/allProjects' , ProjectControler.HandleAllProjects)
 
 
+// route to add more data in projet 
+router.post('/addAdditionalData' , ProjectControler.HandleAdditionalData)
+
+
 
 
  
