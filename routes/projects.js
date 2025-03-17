@@ -25,6 +25,10 @@ router.get('/allProjects' , ProjectControler.HandleAllProjects)
 router.post('/addAdditionalData' , ProjectControler.HandleAdditionalData)
 
 
+// speedo meter api 
+router.get('/getspeedometerData' , ProjectControler.HandleSpeedoMeterData);
+
+
 
 
  

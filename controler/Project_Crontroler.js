@@ -1,11 +1,11 @@
 const Project = require('../models/reports/project');
 
- 
+
 module.exports.HandleStoreProjects = async (req, res) => {
     try {
         // Extract company ID from headers
         const companyId = req.headers['x-company-id'];
-        const { startDate, endDate, contractor, cost, stages, kml, sector, country, state, city , projectname} = req.body;
+        const { startDate, endDate, contractor, cost, stages, kml, sector, country, state, city, projectname } = req.body;
 
         // Validate required fields
         if (!companyId || !startDate || !endDate || !contractor || !cost || !stages || !kml || !sector || !country || !state || !city) {
@@ -30,7 +30,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
             country,
             state,
             city,
-            project_name:projectname
+            project_name: projectname
         });
 
         return res.status(201).json({
@@ -75,7 +75,7 @@ module.exports.HandleAllProjects = async (req, res) => {
 
 
 // Add Additional Value in project  
- 
+
 
 module.exports.HandleAdditionalData = async (req, res) => {
     try {
@@ -115,3 +115,74 @@ module.exports.HandleAdditionalData = async (req, res) => {
     }
 };
 
+
+
+
+
+
+// Api for speedometer
+module.exports.HandleSpeedoMeterData = async (req, res) => {
+    const companyId = req.headers['x-company-id'];
+    const days = parseInt(req.query.days, 10); // Get 'days' from query params
+
+    console.log(req.headers['x-Company-id'])
+
+    if (!companyId) {
+        return res.status(400).json({ message: "Company ID is required" });
+    }
+    if (isNaN(days) || days <= 0) {
+        return res.status(400).json({ message: "Invalid days value" });
+    }
+
+    try {
+        const pastDate = new Date();
+        pastDate.setDate(pastDate.getDate() - days);
+
+        const response = await Project.find({
+            companyId,
+            startDate: { 
+                $gte: pastDate,  
+                $lte: new Date()
+            }
+        }) ;
+
+        if (!response || response.length === 0) {
+            return res.status(404).json({ message: "No data found" });
+        }
+
+        return res.status(200).json({
+            message: "Speedometer data fetched successfully",
+            data: response.length
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+};
+
+
+
+
+
+
+// Api to Delete Project
+module.exports.DeleteProject = async (req, res) => {
+    const projectId = req.headers['x-project-id'];
+    if(!projectId){
+        return res.status(400).json({message: "Project ID is required"});
+    }
+    try {
+        const response = await Project.findByIdAndDelete(projectId);
+        if(!response){
+            return res.status(404).json({message: "Project not found"});
+        }
+        return res.status(200).json({message: "Project deleted successfully"});
+    } catch (error) {
+        return res.status(404).json({
+            message:"Data Deleted"
+        })
+    }
+}
