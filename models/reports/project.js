@@ -31,8 +31,8 @@ const ProjectSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['planning', 'in-progress', 'completed', 'on-hold'],
-      default: 'planning',
+      // enum: ['planning', 'in-progress', 'completed', 'on-hold'],
+      // default: 'planning',
     },
     sector: {
       type: String,
@@ -58,29 +58,29 @@ const ProjectSchema = new mongoose.Schema(
       {
         url: {
           type: String,
-          required: true,
+          // required: true,
         },
       },
     ],
     district: {
       districtMagistrate: {
         type: String,
-        required: true,
+        // required: true,
         trim: true,
       },
       population: {
         type: Number,
-        required: true,
+        // required: true,
         min: 0,
       },
       registrarOffice: {
         type: String,
-        required: true,
+        // required: true,
         trim: true,
       },
       circleRate: {
         type: Number,
-        required: true,
+        // required: true,
         min: 0,
       },
     },

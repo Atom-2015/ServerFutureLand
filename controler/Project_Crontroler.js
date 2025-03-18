@@ -5,17 +5,28 @@ module.exports.HandleStoreProjects = async (req, res) => {
     try {
         // Extract company ID from headers
         const companyId = req.headers['x-company-id'];
-        const { startDate, endDate, contractor, cost, stages, kml, sector, country, state, city, projectname } = req.body;
+        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, projectname } = req.body;
 
+        console.log("companyId:", companyId);
+        console.log("startDate:", startDate);
+        console.log("endDate:", endDate);
+        console.log("contractor:", contractor);
+        console.log("cost:", cost);
+        console.log("status:", status);
+        console.log("kml:", kml);
+        console.log("sector:", sector);
+        console.log("country:", country);
+        console.log("state:", state);
+        console.log("city:", city);
         // Validate required fields
-        if (!companyId || !startDate || !endDate || !contractor || !cost || !stages || !kml || !sector || !country || !state || !city) {
+        if (!companyId || !startDate || !endDate || !contractor || !cost || !status || !kml || !sector || !country || !state || !city) {
             return res.status(400).json({ message: "Missing Data" });
         }
 
         // Ensure KML is an array
-        if (!Array.isArray(kml) || kml.length === 0 || kml.some(item => !item.url)) {
-            return res.status(400).json({ message: "Invalid KML data" });
-        }
+        // if (!Array.isArray(kml) || kml.length === 0 || kml.some(item => !item.url)) {
+        //     return res.status(400).json({ message: "Invalid KML data" });
+        // }
 
         // Create a new project entry
         const response = await Project.create({
@@ -24,7 +35,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
             endDate,
             contractor,
             cost,
-            stages,
+            status,
             kml,
             sector,
             country,
@@ -140,15 +151,15 @@ module.exports.HandleSpeedoMeterData = async (req, res) => {
 
         const response = await Project.find({
             companyId,
-            startDate: { 
-                $gte: pastDate,  
+            startDate: {
+                $gte: pastDate,
                 $lte: new Date()
             }
-        }) ;
+        });
 
-        if (!response || response.length === 0) {
-            return res.status(404).json({ message: "No data found" });
-        }
+        // if (!response || response.length === 0) {
+        //     return res.status(404).json({ message: "No data found" , data : 0 });
+        // }
 
         return res.status(200).json({
             message: "Speedometer data fetched successfully",
@@ -166,23 +177,59 @@ module.exports.HandleSpeedoMeterData = async (req, res) => {
 
 
 
+// ************************* api to store kml ******************************
+
+module.exports.HandleAddKml = async (req, res) => {
+    try {
+        const companyId = req.headers['x-company-id'];
+        const projectId = req.headers['x-project-id'];
+        const kmlData = req.body.kmlData;
+
+        // Validate required fields
+        if (!companyId || !projectId || !kmlData || !kmlData.url) {
+            return res.status(400).json({ message: "Company ID, Project ID, and KML URL are required" });
+        }
+
+        const project = await Project.findById({ projectId });
+
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+
+        project.kml.push(kmlData);
+        await project.save();
+
+        return res.status(200).json({ message: "KML data added successfully", data: project });
+
+    } catch (error) {
+        console.error("Error adding KML:", error);
+        return res.status(500).json({
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+};
+
+
+
+
 
 
 // Api to Delete Project
-module.exports.DeleteProject = async (req, res) => {
+module.exports.HandleDeleteProject = async (req, res) => {
     const projectId = req.headers['x-project-id'];
-    if(!projectId){
-        return res.status(400).json({message: "Project ID is required"});
+    if (!projectId) {
+        return res.status(400).json({ message: "Project ID is required" });
     }
     try {
         const response = await Project.findByIdAndDelete(projectId);
-        if(!response){
-            return res.status(404).json({message: "Project not found"});
+        if (!response) {
+            return res.status(404).json({ message: "Project not found" });
         }
-        return res.status(200).json({message: "Project deleted successfully"});
+        return res.status(200).json({ message: "Project deleted successfully" });
     } catch (error) {
         return res.status(404).json({
-            message:"Data Deleted"
+            message: "Data Deleted"
         })
     }
 }

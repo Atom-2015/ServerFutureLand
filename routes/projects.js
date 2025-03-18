@@ -30,6 +30,11 @@ router.get('/getspeedometerData' , ProjectControler.HandleSpeedoMeterData);
 
 
 
+// to delete the project
+router.delete('/deleteProject' , ProjectControler.HandleDeleteProject);
+
+
+
 
  
 
