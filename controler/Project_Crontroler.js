@@ -5,7 +5,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
     try {
         // Extract company ID from headers
         const companyId = req.headers['x-company-id'];
-        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, projectname } = req.body;
+        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name } = req.body;
 
         console.log("companyId:", companyId);
         console.log("startDate:", startDate);
@@ -41,7 +41,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
             country,
             state,
             city,
-            project_name: projectname
+            project_name
         });
 
         return res.status(201).json({
@@ -263,6 +263,16 @@ module.exports.HandleUpdateProject = async (req, res) => {
     }
 };
 
+
+
+
+
+
+
+// Api to store the data of the blog iamge url and blog content 
+module.exports.HandleBlog = async (req, res) => {
+    const projectId = req.headers['x-project-id']
+}
 
 
 
