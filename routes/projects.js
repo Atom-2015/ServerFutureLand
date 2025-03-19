@@ -35,6 +35,11 @@ router.delete('/deleteProject' , ProjectControler.HandleDeleteProject);
 
 
 
+// to update project
+router.put('/updateProject' , ProjectControler.HandleUpdateProject);
+
+
+
 
  
 
