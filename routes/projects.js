@@ -40,6 +40,11 @@ router.put('/updateProject' , ProjectControler.HandleUpdateProject);
 
 
 
+// api to get kml 
+router.get('/getkml' , ProjectControler.HandleGetKml)
+
+
+
 
  
 

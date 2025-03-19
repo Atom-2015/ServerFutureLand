@@ -36,13 +36,14 @@ module.exports.HandleStoreProjects = async (req, res) => {
             contractor,
             cost,
             status,
-            kml,
             sector,
             country,
             state,
             city,
             project_name
         });
+         response.kml.push({url:kml})
+         await response.save()
 
         return res.status(201).json({
             message: "Project created successfully",
@@ -86,6 +87,8 @@ module.exports.HandleAllProjects = async (req, res) => {
 
 
 // Add Additional Value in project  
+
+
 
 
 module.exports.HandleAdditionalData = async (req, res) => {
@@ -269,10 +272,31 @@ module.exports.HandleUpdateProject = async (req, res) => {
 
 
 
-// Api to store the data of the blog iamge url and blog content 
-module.exports.HandleBlog = async (req, res) => {
-    const projectId = req.headers['x-project-id']
+// api to get/retrive the data of kml 
+
+module.exports.HandleGetKml = async(req , res)=>{
+    const projectId = req.headers['x-project-id'];
+    if (!projectId) {
+        return res.status(400).json({ message: "Project ID is required" });
+    }
+    try {
+        const response = await Project.findById( projectId ).select(" kml ");
+// console.log(response)
+        if (!response) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+        return res.status(200).json({ message: "Project data retrieved successfully", data: response})
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error", error: error.message });
+    }
 }
+
+
+
+
+
+
+
 
 
 
