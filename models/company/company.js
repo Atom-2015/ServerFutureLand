@@ -2,10 +2,6 @@ const mongoose = require('mongoose');
 
 const CompanySchema = new mongoose.Schema(
   {
-    master_company:{
-      type:String,
-      required:true
-    },
     company_name: {
       type: String,
       required: true,
@@ -14,17 +10,34 @@ const CompanySchema = new mongoose.Schema(
     company_expiry: {
       type: Date,
     },
-    createdBy: {
+    company_email: {
       type: String,
+      required: true,
+      unique: true,
     },
-    PlansId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Plans', // Reference to Credit schema
+    password: {  // Fixed typo from "passowrd"
+      type: String,
+      required: true,
     },
+    permission_location:[{
+      country: {
+        type: String,
+        required: true,  
+      },
+      state: {
+        type: String,
+        required: true,   
+      },
+      city: {
+        type: String,
+        required: true, 
+      },
+    }],
+    
     status: {
       type: String,
-      enum: ['Active', 'Inactive', 'Pending'], // Enum for predefined values
-      default: 'Pending', // Default status
+      enum: ['Active', 'Inactive', 'Pending'],
+      default: 'Pending',
     },
   },
   { timestamps: true }

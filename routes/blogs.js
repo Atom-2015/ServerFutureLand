@@ -16,7 +16,7 @@ const BlogControler = require('../controler/BlogsContrler')
 // Health Route for ECR and ECS
  
 
-router.post('/addBlog' , BlogControler.HandleAddBlog);
+router.post('/createBlog' , BlogControler.HandleAddBlog);
 
 
 
