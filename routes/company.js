@@ -19,6 +19,10 @@ const CompanyControler = require('../controler/CompanyControler')
 router.post('/addcompany' , CompanyControler.HandleAddCompany);
 
 
+// delete company
+router.delete('/deletecompany', CompanyControler.HandleDeleteCompany);
+
+
 
 
  

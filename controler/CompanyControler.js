@@ -6,11 +6,7 @@ module.exports.HandleAddCompany = async (req, res) => {
     const { company_name, company_expiry, company_email, password, permission_location } = req.body;
 
 
-    console.log(JSON.stringify(req.body, null, 2))
-
-    // Check if required fields are provided
-
-
+    // console.log(JSON.stringify(req.body, null, 2)) 
 
     if (!company_name || !company_email || !password || !permission_location) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -54,17 +50,31 @@ module.exports.HandleAddCompany = async (req, res) => {
     newCompany.permission_location = filteredLocations;
 
     console.log("Filtered Data:", JSON.stringify(newCompany.permission_location, null, 2));
-
-
-
-
-
-
-
+ 
     await newCompany.save();
     res.status(201).json({ message: 'Company created successfully', company: newCompany });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
+
+
+
+
+
+// Api to delte company
+module.exports.HandleDeleteCompany =  async(req , res)=>{
+  if (!req.headers['x-company-id']) {
+    return res.status(400).json({ message: 'Company ID is required' });
+  }
+  try {
+    const response = await Company.findByIdAndDelete(req.headers['x-company-id']);
+    if (!response) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+    res.status(200).json({ message: 'Company deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+}
 
