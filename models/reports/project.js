@@ -13,16 +13,16 @@ const ProjectSchema = new mongoose.Schema(
     },
     startDate: {
       type: Date,
-      required: true,
+      // required: true,
     },
     endDate: {
       type: Date,
-      required: true,
+      // required: true,
     },
     contractor: {
       type: String,
       required: true,
-      trim: true,
+      // trim: true,
     },
     cost: {
       type: Number,

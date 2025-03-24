@@ -24,6 +24,10 @@ router.delete('/deletecompany', CompanyControler.HandleDeleteCompany);
 
 
 
+// update company
+router.put('/updatecompany'  , CompanyControler.HandleUpdateCompany);
+
+
 
  
 

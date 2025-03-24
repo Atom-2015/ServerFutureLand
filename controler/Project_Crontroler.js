@@ -26,7 +26,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
         console.log("sector:", sector);
         
         // Validate required fields
-        if (!companyId || !startDate || !endDate || !contractor || !cost || !status  || !sector || !country || !state || !city) {
+        if (!companyId  || !cost || !status  || !sector || !country || !state || !city) {
             return res.status(400).json({ message: "Missing Data" });
         }
 
@@ -55,8 +55,11 @@ module.exports.HandleStoreProjects = async (req, res) => {
                 districtMagistrate
             }
         });
-         response.kml.push({url:kml})
-         await response.save()
+        if(kml.length > 0){
+            response.kml.push({url:kml})
+            await response.save()
+        }
+        
 
         return res.status(201).json({
             message: "Project created successfully",

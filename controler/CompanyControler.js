@@ -78,3 +78,53 @@ module.exports.HandleDeleteCompany =  async(req , res)=>{
   }
 }
 
+
+
+
+
+
+
+
+
+// api to update the company
+ 
+
+module.exports.HandleUpdateCompany = async (req, res) => {
+  try {
+    // Validate Company ID in headers
+    const companyId = req.headers["x-company-id"];
+    if (!companyId) {
+      return res.status(400).json({ message: "Company ID is required" });
+    }
+
+    let { company_name, company_expiry, company_email, password, permission_location } = req.body;
+
+    // Filter out undefined fields dynamically
+    let updateFields = Object.fromEntries(
+      Object.entries({ company_name, company_expiry, company_email, password }).filter(([_, v]) => v !== undefined)
+    );
+
+    // Process permission_location if provided
+    if (Array.isArray(permission_location)) {
+      updateFields.permission_location = permission_location
+        .filter((p) => p.country && p.state && Array.isArray(p.cities) && p.cities.length > 0)
+        .map((p) => ({
+          country: p.country,
+          state: p.state,
+          city: p.cities.join(", "),
+        }));
+    }
+
+    // Find and update company in one step
+    const updatedCompany = await Company.findByIdAndUpdate(companyId, updateFields, { new: true });
+
+    if (!updatedCompany) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    res.status(200).json({ message: "Company updated successfully", company: updatedCompany });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
