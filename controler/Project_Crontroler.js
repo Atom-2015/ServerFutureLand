@@ -5,7 +5,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
     try {
         // Extract company ID from headers
         const companyId = req.headers['x-company-id'];
-        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name } = req.body;
+        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name ,population, districtMagistrate,registrarOffice , circleRate} = req.body;
 
         console.log("companyId:", companyId);
         console.log("startDate:", startDate);
@@ -18,8 +18,15 @@ module.exports.HandleStoreProjects = async (req, res) => {
         console.log("country:", country);
         console.log("state:", state);
         console.log("city:", city);
+        console.log("project_name:", project_name);
+        console.log("population:", population);
+        console.log("districtMagistrate:", districtMagistrate);
+        console.log("registrarOffice:", registrarOffice);
+        console.log("circleRate:", circleRate);
+        console.log("sector:", sector);
+        
         // Validate required fields
-        if (!companyId || !startDate || !endDate || !contractor || !cost || !status || !kml || !sector || !country || !state || !city) {
+        if (!companyId || !startDate || !endDate || !contractor || !cost || !status  || !sector || !country || !state || !city) {
             return res.status(400).json({ message: "Missing Data" });
         }
 
@@ -40,7 +47,13 @@ module.exports.HandleStoreProjects = async (req, res) => {
             country,
             state,
             city,
-            project_name
+            project_name,
+            district: {   
+                registrarOffice,
+                circleRate,
+                population,
+                districtMagistrate
+            }
         });
          response.kml.push({url:kml})
          await response.save()
