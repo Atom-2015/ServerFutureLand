@@ -7,23 +7,23 @@ module.exports.HandleStoreProjects = async (req, res) => {
         const companyId = req.headers['x-company-id'];
         const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name ,population, districtMagistrate,registrarOffice , circleRate} = req.body;
 
-        console.log("companyId:", companyId);
-        console.log("startDate:", startDate);
-        console.log("endDate:", endDate);
-        console.log("contractor:", contractor);
-        console.log("cost:", cost);
-        console.log("status:", status);
-        console.log("kml:", kml);
-        console.log("sector:", sector);
-        console.log("country:", country);
-        console.log("state:", state);
-        console.log("city:", city);
-        console.log("project_name:", project_name);
-        console.log("population:", population);
-        console.log("districtMagistrate:", districtMagistrate);
-        console.log("registrarOffice:", registrarOffice);
-        console.log("circleRate:", circleRate);
-        console.log("sector:", sector);
+        // console.log("companyId:", companyId);
+        // console.log("startDate:", startDate);
+        // console.log("endDate:", endDate);
+        // console.log("contractor:", contractor);
+        // console.log("cost:", cost);
+        // console.log("status:", status);
+        // console.log("kml:", kml);
+        // console.log("sector:", sector);
+        // console.log("country:", country);
+        // console.log("state:", state);
+        // console.log("city:", city);
+        // console.log("project_name:", project_name);
+        // console.log("population:", population);
+        // console.log("districtMagistrate:", districtMagistrate);
+        // console.log("registrarOffice:", registrarOffice);   
+        // console.log("circleRate:", circleRate);
+        // console.log("sector:", sector);
         
         // Validate required fields
         if (!companyId  || !cost || !status  || !sector || !country || !state || !city) {
@@ -306,6 +306,55 @@ module.exports.HandleGetKml = async(req , res)=>{
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 }
+
+
+
+
+// api to retrive graph data sectors , Indian state , monetry range 
+
+module.exports.HandleChartData = async (req, res) => {
+    try {
+        const graphdata = await Project.find();
+
+        const chartData = {
+            sectors: {},
+            MonetaryRange: {
+                "1-100": 0,
+                "100-500": 0,
+                "500-1000": 0,
+                "1000-5000": 0,
+                "5000+": 0  
+            }
+        };
+
+        graphdata.forEach((project) => {
+            // Count Sectors
+            if (!chartData.sectors[project.sector]) {
+                chartData.sectors[project.sector] = 0;
+            }
+            chartData.sectors[project.sector]++;
+
+            // Categorize Monetary Ranges
+            const cost = project.cost;
+            if (cost >= 1 && cost < 100) chartData.MonetaryRange["1-100"]++;
+            else if (cost >= 100 && cost < 500) chartData.MonetaryRange["100-500"]++;
+            else if (cost >= 500 && cost < 1000) chartData.MonetaryRange["500-1000"]++;
+            else if (cost >= 1000 && cost <= 5000) chartData.MonetaryRange["1000-5000"]++;
+            else chartData.MonetaryRange["5000+"]++;
+        });
+
+        res.status(200).json({
+            message: "Graph data fetched successfully",
+            data:chartData, // Now everything is inside one object
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+
+
+  
 
 
 

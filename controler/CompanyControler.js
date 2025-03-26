@@ -8,7 +8,7 @@ module.exports.HandleAddCompany = async (req, res) => {
 
     // console.log(JSON.stringify(req.body, null, 2)) 
 
-    if (!company_name || !company_email || !password || !permission_location) {
+    if (!company_name || !company_email || !password   ) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -127,4 +127,24 @@ module.exports.HandleUpdateCompany = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
+
+
+
+
+
+
+// This is the api to get all the Company list 
+
+module.exports.HandleGetAllCompany = async(req , res) => {
+  try {
+    const response = await Company.find().select("-password -createdAt -updatedAt ");
+    if(!response){
+      return res.status(404).json({ message: "Company not found" });
+    }
+    // console.log("this is response of comopant data" , response);
+    return  res.status(200).json(response);
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+}
 

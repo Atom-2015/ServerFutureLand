@@ -21,7 +21,7 @@ const ProjectSchema = new mongoose.Schema(
     },
     contractor: {
       type: String,
-      required: true,
+      // required: true,
       // trim: true,
     },
     cost: {

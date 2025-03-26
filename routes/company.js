@@ -28,6 +28,9 @@ router.delete('/deletecompany', CompanyControler.HandleDeleteCompany);
 router.put('/updatecompany'  , CompanyControler.HandleUpdateCompany);
 
 
+router.get('/getallCompany' , CompanyControler.HandleGetAllCompany);
+
+
 
  
 
