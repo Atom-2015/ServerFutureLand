@@ -23,7 +23,10 @@ router.use('/project' , require('./projects') )
 router.use('/company' , require('./company'))
 
 
-router.use('/blog' , require('./blogs.js'))
+router.use('/blog' , require('./blogs.js'));
+
+
+router.use('/graph' , require('./graph.js'))
 
 
 

@@ -5,7 +5,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
     try {
         // Extract company ID from headers
         const companyId = req.headers['x-company-id'];
-        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name ,population, districtMagistrate,registrarOffice , circleRate} = req.body;
+        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name ,population, districtMagistrate,registrarOffice , circleRate , documentFile } = req.body;
 
         // console.log("companyId:", companyId);
         // console.log("startDate:", startDate);
@@ -23,10 +23,10 @@ module.exports.HandleStoreProjects = async (req, res) => {
         // console.log("districtMagistrate:", districtMagistrate);
         // console.log("registrarOffice:", registrarOffice);   
         // console.log("circleRate:", circleRate);
-        // console.log("sector:", sector);
+        console.log("sectdocumentFileor:", documentFile);
         
         // Validate required fields
-        if (!companyId  || !cost || !status  || !sector || !country || !state || !city) {
+        if (!companyId   || !status  || !sector || !country || !state || !city) {
             return res.status(400).json({ message: "Missing Data" });
         }
 
@@ -47,6 +47,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
             country,
             state,
             city,
+            documentFile,
             project_name,
             district: {   
                 registrarOffice,
@@ -55,10 +56,11 @@ module.exports.HandleStoreProjects = async (req, res) => {
                 districtMagistrate
             }
         });
-        if(kml.length > 0){
-            response.kml.push({url:kml})
-            await response.save()
+        if (kml.length > 0) {
+            response.kml.push(...kml.map(file => ({ url: file })));
+            await response.save();
         }
+        
         
 
         return res.status(201).json({
@@ -357,6 +359,58 @@ module.exports.HandleChartData = async (req, res) => {
   
 
 
+
+const axios = require("axios");      // For making HTTP requests
+const cheerio = require("cheerio");  // For web scraping
+  
+module.exports.HandleGetDMdata = async (req, res) => {
+    try {
+        const city = req.query.city;
+        if (!city) {
+            return res.status(400).json({ error: "City parameter is required" });
+        }
+
+        // Construct the Wikipedia URL for the city district
+        const wikiUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(city)}_district`;
+
+        const { data } = await axios.get(wikiUrl, {
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            },
+        });
+
+        const $ = cheerio.load(data);
+        let dmInfo = "";
+
+        // Try to extract the DM name from Wikipedia's infobox
+        $("table.infobox tr").each((index, element) => {
+            const key = $(element).find("th").text().trim();
+            const value = $(element).find("td").text().trim();
+
+            if (key.includes("District magistrate") || key.includes("DM") || key.includes("Collector")) {
+                dmInfo = value;
+                return false; // Stop loop once we find the DM
+            }
+        });
+
+        // If Wikipedia fails, fetch DM name from ChatGPT's internal tool
+        if (!dmInfo) {
+            dmInfo = await getDMFromChatGPT(city);
+        }
+
+        return res.json({ city, dm_name: dmInfo || "Not Found" });
+
+    } catch (error) {
+        return res.status(500).json({ error: "Error fetching data", details: error.message });
+    }
+};
+
+// Function to fetch DM details from ChatGPT's internal tool
+async function getDMFromChatGPT(city) {
+    // I will fetch the latest DM name for you
+    const dm_name = await fetchDMFromInternalTool(city);
+    return dm_name || "Not Found";
+}
 
 
 

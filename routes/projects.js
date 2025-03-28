@@ -48,6 +48,10 @@ router.get('/chartdata' , ProjectControler.HandleChartData);
 
 
 
+router.get('/getDm' , ProjectControler.HandleGetDMdata);
+
+
+
 
  
 

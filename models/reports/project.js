@@ -26,7 +26,7 @@ const ProjectSchema = new mongoose.Schema(
     },
     cost: {
       type: Number,
-      required: true,
+      // required: true,
       min: 0,
     },
     status: {
@@ -62,6 +62,7 @@ const ProjectSchema = new mongoose.Schema(
         },
       },
     ],
+    documentFile: [String],
     district: {
       districtMagistrate: {
         type: String,
@@ -83,6 +84,7 @@ const ProjectSchema = new mongoose.Schema(
         // required: true,
         min: 0,
       },
+       
     },
   },
  
