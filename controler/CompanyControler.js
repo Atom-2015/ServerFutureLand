@@ -169,7 +169,12 @@ module.exports.HandleCreateSession = async (req, res) => {
       }        
       if (company.password !== req.body.password) {
           return res.status(400).json({ message: 'Invalid password' });
-      }        
+      }
+      // if(company.isMaster){
+      //   console.log("master company")
+      // } 
+      const master = company.isMaster;  
+      console.log(master , "This is master")     
       const token = jwt.sign({
           email: company.company_email,
           name: company.company_name,
@@ -177,6 +182,11 @@ module.exports.HandleCreateSession = async (req, res) => {
       },privated, { expiresIn: '1d' });
       // return res.status(200).json({ token });
       // console.log("************" , company.body.email);
+      if(master === true ){
+        console.log("ye master hai")
+        return res.json({status:200 , company:token , company_id:company.company_name , isMaster:true})
+        // return res.status(200).json({ token , isMaster: true });
+      }
       return res.json({status:200 , company:token , company_id:company.company_name})
 
   } catch (error) {

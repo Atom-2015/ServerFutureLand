@@ -19,6 +19,10 @@ const CompanySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    isMaster:{
+      type:Boolean,
+      default:false
+    },
     permission_location:[{
       country: {
         type: String,

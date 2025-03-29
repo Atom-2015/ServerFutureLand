@@ -4,8 +4,11 @@ const Project = require('../models/reports/project');
 module.exports.HandleStoreProjects = async (req, res) => {
     try {
         // Extract company ID from headers
-        const companyId = req.headers['x-company-id'];
+        // const companyId = req.headers['x-company-id'];
         const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name ,population, districtMagistrate,registrarOffice , circleRate , documentFile } = req.body;
+
+        console.log(`this is user data ${JSON.stringify(req.user , null , " ")}`);
+        const id = req.user.company_id
 
         // console.log("companyId:", companyId);
         // console.log("startDate:", startDate);
@@ -26,7 +29,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
         console.log("sectdocumentFileor:", documentFile);
         
         // Validate required fields
-        if (!companyId   || !status  || !sector || !country || !state || !city) {
+        if (    !status  || !sector || !country || !state || !city) {
             return res.status(400).json({ message: "Missing Data" });
         }
 
@@ -37,7 +40,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
 
         // Create a new project entry
         const response = await Project.create({
-            companyId,
+            companyId:id,
             startDate,
             endDate,
             contractor,
