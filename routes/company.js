@@ -31,6 +31,10 @@ router.put('/updatecompany'  , CompanyControler.HandleUpdateCompany);
 router.get('/getallCompany' , CompanyControler.HandleGetAllCompany);
 
 
+// route for creating session 
+router.post('/createSession' , CompanyControler.HandleCreateSession);
+
+
 
  
 

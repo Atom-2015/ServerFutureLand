@@ -148,3 +148,40 @@ module.exports.HandleGetAllCompany = async(req , res) => {
   }
 }
 
+
+
+
+
+
+
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+module.exports.HandleCreateSession = async (req, res) => {
+  const privated = process.env.SECRET_KEY
+  try {    
+      console.log("This is body " ,req.body);
+          
+      const company = await Company.findOne({ company_email: req.body.email });
+      console.log("this is company data in db " , company)
+      if (!company) {
+          return res.status(400).json({ message: 'company not found' });
+      }        
+      if (company.password !== req.body.password) {
+          return res.status(400).json({ message: 'Invalid password' });
+      }        
+      const token = jwt.sign({
+          email: company.company_email,
+          name: company.company_name,
+          company_id:company._id,
+      },privated, { expiresIn: '1d' });
+      // return res.status(200).json({ token });
+      // console.log("************" , company.body.email);
+      return res.json({status:200 , company:token , company_id:company.company_name})
+
+  } catch (error) {
+      console.log(`***************************error in Sign In**************************** ${error}`);
+      return res.status(500).json({ message: 'Internal server error', error });
+  }  
+};
+
