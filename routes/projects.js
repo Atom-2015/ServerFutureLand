@@ -19,7 +19,7 @@ const isAuthenticated = require('../middleware/isAuth')
 router.post('/createProject', isAuthenticated , ProjectControler.HandleStoreProjects);
 
 
-router.get('/allProjects' , ProjectControler.HandleAllProjects)
+router.get('/allProjects' , isAuthenticated , ProjectControler.HandleAllProjects)
 
 
 // route to add more data in projet 

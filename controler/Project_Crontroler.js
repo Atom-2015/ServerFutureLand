@@ -53,7 +53,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
             documentFile,
             project_name,
             district: {   
-                registrarOffice,
+                registrarOffice,    
                 circleRate,
                 population,
                 districtMagistrate
@@ -83,7 +83,10 @@ module.exports.HandleStoreProjects = async (req, res) => {
 module.exports.HandleAllProjects = async (req, res) => {
     try {
         // Extract company ID from headers
-        const companyId = req.headers['x-company-id'];
+        // const companyId = req.headers['x-company-id'];
+        const companyId = req.user.company_id;
+        // console.log("this is user data ", userinfo);
+        
 
         // Validate companyId
         if (!companyId) {
