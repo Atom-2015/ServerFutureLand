@@ -3,7 +3,7 @@ const Company = require('../models/company/company');
 
 module.exports.HandleAddCompany = async (req, res) => {
   try {
-    const { company_name, company_expiry, company_email, password, permission_location } = req.body;
+    const { company_name, company_expiry, company_email, password, permission_location  } = req.body;
 
 
     // console.log(JSON.stringify(req.body, null, 2)) 
@@ -30,6 +30,7 @@ module.exports.HandleAddCompany = async (req, res) => {
       company_name,
       company_expiry,
       company_email,
+      // isMaster,
       password,
     });
     //   newCompany.permission_location.push(permission_location);

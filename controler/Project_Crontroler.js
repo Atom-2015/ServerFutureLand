@@ -80,31 +80,78 @@ module.exports.HandleStoreProjects = async (req, res) => {
 
 
 // LIst of all company 
-module.exports.HandleAllProjects = async (req, res) => {
-    try {
-        // Extract company ID from headers
-        // const companyId = req.headers['x-company-id'];
-        const companyId = req.user.company_id;
-        // console.log("this is user data ", userinfo);
+// module.exports.HandleAllProjects = async (req, res) => {
+//     try {
+//         // Extract company ID from headers
+//         // const companyId = req.headers['x-company-id'];
+//         const companyId = req.user.company_id;
+//         console.log("this is user data ", companyId);
+
+//         if(companyId.toString() === "67eb7ca87d739618755ffec3"){
+//             const projects2 = await Project.find();
+//             console.log(`this is compant data for admin ${projects2}`);
+//             return res.status(204).json({
+//                 message: "Projects fetched successfully",
+//                 projects2
+//             })
+//         }
         
 
-        // Validate companyId
+//         // Validate companyId
+//         if (!companyId) {
+//             return res.status(400).json({ message: "Company ID is required" });
+//         }
+
+//         // Fetch projects based on companyId
+//         const projects = await Project.find({ companyId });
+
+//         return res.status(200).json({
+//             message: "Projects fetched successfully",
+//             projects
+//         });
+//     } catch (error) {
+//         console.error("Error fetching projects:", error);
+//         return res.status(500).json({ message: "Internal Server Error", error: error.message });
+//     }
+// };
+
+module.exports.HandleAllProjects = async (req, res) => {
+    try {
+        // Extract company ID from user (assuming `req.user.company_id` is populated correctly)
+        const companyId = req.user.company_id;
+        console.log("This is user data: ", companyId);
+
+        // Check if the company ID matches the admin ID and fetch all projects
+        if (companyId.toString() === "67eb7ca87d739618755ffec3") {
+            const projects = await Project.find();
+            console.log(`This is company data for admin: ${projects}`);
+            
+            // Change status code to 200 (OK) instead of 204
+            return res.status(200).json({
+                message: "Projects fetched successfully",
+                projects
+            });
+        }
+
+        // Validate companyId for other users
         if (!companyId) {
             return res.status(400).json({ message: "Company ID is required" });
         }
 
-        // Fetch projects based on companyId
+        // Fetch projects based on the companyId
         const projects = await Project.find({ companyId });
 
         return res.status(200).json({
             message: "Projects fetched successfully",
             projects
         });
+
     } catch (error) {
         console.error("Error fetching projects:", error);
         return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
 
 
 
