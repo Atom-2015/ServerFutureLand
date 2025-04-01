@@ -45,7 +45,7 @@ router.put('/updateProject' , ProjectControler.HandleUpdateProject);
 router.get('/getkml' , ProjectControler.HandleGetKml);
 
 
-router.get('/chartdata' , ProjectControler.HandleChartData);
+router.get('/chartdata' , isAuthenticated , ProjectControler.HandleChartData);
 
 
 

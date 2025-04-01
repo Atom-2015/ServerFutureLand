@@ -367,9 +367,53 @@ module.exports.HandleGetKml = async(req , res)=>{
 
 // api to retrive graph data sectors , Indian state , monetry range 
 
+// module.exports.HandleChartData = async (req, res) => {
+//     try {
+//         // console.log(req.user)
+//         const companyid = req.user.company_id;
+//         const graphdata = await Project.find({companyId:companyid});
+
+//         const chartData = {
+//             sectors: {},
+//             MonetaryRange: {
+//                 "1-100": 0,
+//                 "100-500": 0,
+//                 "500-1000": 0,
+//                 "1000-5000": 0,
+//                 "5000+": 0  
+//             }
+//         };
+
+//         graphdata.forEach((project) => {
+//             // Count Sectors
+//             if (!chartData.sectors[project.sector]) {
+//                 chartData.sectors[project.sector] = 0;
+//             }
+//             chartData.sectors[project.sector]++;
+
+//             // Categorize Monetary Ranges
+//             const cost = project.cost;
+//             if (cost >= 1 && cost < 100) chartData.MonetaryRange["1-100"]++;
+//             else if (cost >= 100 && cost < 500) chartData.MonetaryRange["100-500"]++;
+//             else if (cost >= 500 && cost < 1000) chartData.MonetaryRange["500-1000"]++;
+//             else if (cost >= 1000 && cost <= 5000) chartData.MonetaryRange["1000-5000"]++;
+//             else chartData.MonetaryRange["5000+"]++;
+//         });
+
+//         res.status(200).json({
+//             message: "Graph data fetched successfully",
+//             data:chartData, // Now everything is inside one object
+//         });
+//     } catch (error) {
+//         res.status(500).json({ message: "Internal Server Error", error: error.message });
+//     }
+// };
+
+
 module.exports.HandleChartData = async (req, res) => {
     try {
-        const graphdata = await Project.find();
+        const companyid = req.user.company_id;
+        const graphdata = await Project.find({ companyId: companyid });
 
         const chartData = {
             sectors: {},
@@ -379,29 +423,45 @@ module.exports.HandleChartData = async (req, res) => {
                 "500-1000": 0,
                 "1000-5000": 0,
                 "5000+": 0  
-            }
+            },
+            countryData: {} // New country-wise data structure
         };
 
         graphdata.forEach((project) => {
+            const { country, state, sector, cost } = project;
+
             // Count Sectors
-            if (!chartData.sectors[project.sector]) {
-                chartData.sectors[project.sector] = 0;
+            if (!chartData.sectors[sector]) {
+                chartData.sectors[sector] = 0;
             }
-            chartData.sectors[project.sector]++;
+            chartData.sectors[sector]++;
 
             // Categorize Monetary Ranges
-            const cost = project.cost;
             if (cost >= 1 && cost < 100) chartData.MonetaryRange["1-100"]++;
             else if (cost >= 100 && cost < 500) chartData.MonetaryRange["100-500"]++;
             else if (cost >= 500 && cost < 1000) chartData.MonetaryRange["500-1000"]++;
             else if (cost >= 1000 && cost <= 5000) chartData.MonetaryRange["1000-5000"]++;
             else chartData.MonetaryRange["5000+"]++;
+
+            // Country-wise State Data
+            if (!chartData.countryData[country]) {
+                chartData.countryData[country] = {
+                    states: new Set() // Using Set to avoid duplicate states
+                };
+            }
+            chartData.countryData[country].states.add(state);
+        });
+
+        // Convert Set to Array
+        Object.keys(chartData.countryData).forEach(country => {
+            chartData.countryData[country].states = [...chartData.countryData[country].states];
         });
 
         res.status(200).json({
-            message: "Graph data fetched successfully",
-            data:chartData, // Now everything is inside one object
+            message: "Chart data fetched successfully",
+            data: chartData
         });
+
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
