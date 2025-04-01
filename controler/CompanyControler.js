@@ -196,3 +196,26 @@ module.exports.HandleCreateSession = async (req, res) => {
   }  
 };
 
+
+
+
+
+
+
+// api for getting company details 
+module.exports.HandleGetCompanyDetails = async (req, res) => {
+  try {
+    const companyid = req.user.company_id;
+    const detail = await Company.findById(companyid).select(" -isMaster ");
+    if(!detail){
+      return res.status(400).json({message: 'Company not found'})
+    }
+    return res.status(200).json({
+      data: detail,
+      message: 'Company details fetched successfully',
+    })
+  } catch (error) {
+    console.log(`***************************error in Sign In**************************** ${error}`);
+    return res.status(500).json({ message: 'Internal server error', error });
+  }
+}
