@@ -116,23 +116,22 @@ module.exports.HandleStoreProjects = async (req, res) => {
 // };
 
 module.exports.HandleAllProjects = async (req, res) => {
-    try {
-        // Extract company ID from user (assuming `req.user.company_id` is populated correctly)
+    try { 
         // console.log(req.user)
         const companyId = req.user.company_id;
         // console.log("This is user data: ", companyId);
 
         // Check if the company ID matches the admin ID and fetch all projects
-        // if (companyId.toString() === "67eb7ca87d739618755ffec3") {
-        //     const projects = await Project.find();
-        //     // console.log(`This is company data for admin: ${projects}`);
+        if (companyId.toString() === "67eb7ca87d739618755ffec3") {
+            const projects = await Project.find();
+            // console.log(`This is company data for admin: ${projects}`);
             
-        //     // Change status code to 200 (OK) instead of 204
-        //     return res.status(200).json({
-        //         message: "Projects fetched successfully",
-        //         projects
-        //     });
-        // }
+            // Change status code to 200 (OK) instead of 204
+            return res.status(200).json({
+                message: "Projects fetched successfully",
+                projects
+            });
+        }
 
         // Validate companyId for other users
         if (!companyId) {
@@ -150,7 +149,7 @@ module.exports.HandleAllProjects = async (req, res) => {
 
         // Fetch all projects
         const allProjects = await Project.find();
-        console.log(allProjects);
+        // console.log(allProjects);
 
         // Filter projects based on user's location permissions
         const filteredProjects = allProjects.filter(project => {
@@ -230,37 +229,51 @@ module.exports.HandleAdditionalData = async (req, res) => {
 
 // Api for speedometer
 module.exports.HandleSpeedoMeterData = async (req, res) => {
-    const companyId = req.headers['x-company-id'];
+    const companyId = req.user.company_id;
     const days = parseInt(req.query.days, 10); // Get 'days' from query params
-
-    console.log(req.headers['x-Company-id'])
 
     if (!companyId) {
         return res.status(400).json({ message: "Company ID is required" });
     }
+
     if (isNaN(days) || days <= 0) {
         return res.status(400).json({ message: "Invalid days value" });
     }
 
     try {
+
+        // if(req.user.company_id === "")
+    
+
+
+        const companyPermission = await Company.findById(companyId).select("permission_location");
+
+        if (!companyPermission) {
+            return res.status(404).json({ message: "Company not found or no permissions" });
+        }
+
+        const allProjects = await Project.find();
+        const filteredProjects = allProjects.filter(project => 
+            companyPermission.permission_location.some(permission => 
+                permission.country === project.country &&
+                permission.state === project.state &&
+                permission.city.includes(project.city)
+            )
+        );
+
+        console.log("This is the filtered projects", filteredProjects);
+
         const pastDate = new Date();
         pastDate.setDate(pastDate.getDate() - days);
 
-        const response = await Project.find({
-            companyId,
-            startDate: {
-                $gte: pastDate,
-                $lte: new Date()
-            }
-        });
-
-        // if (!response || response.length === 0) {
-        //     return res.status(404).json({ message: "No data found" , data : 0 });
-        // }
+        // Filter projects that were created within the specified days
+        const recentProjects = filteredProjects.filter(project => 
+            new Date(project.createdAt) >= pastDate
+        );
 
         return res.status(200).json({
             message: "Speedometer data fetched successfully",
-            data: response.length
+            data: recentProjects.length
         });
 
     } catch (error) {
@@ -270,6 +283,7 @@ module.exports.HandleSpeedoMeterData = async (req, res) => {
         });
     }
 };
+
 
 
 
