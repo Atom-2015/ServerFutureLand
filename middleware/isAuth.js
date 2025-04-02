@@ -10,7 +10,7 @@ const isAuthenticated= async(req ,res,next)=>{
         
     }
     try {
-        console.log(token)
+        // console.log(token)
         const decode = await jwt.verify(token , process.env.SECRET_KEY);
         req.user = decode; 
         next();    

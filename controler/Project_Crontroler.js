@@ -118,32 +118,54 @@ module.exports.HandleStoreProjects = async (req, res) => {
 module.exports.HandleAllProjects = async (req, res) => {
     try {
         // Extract company ID from user (assuming `req.user.company_id` is populated correctly)
+        // console.log(req.user)
         const companyId = req.user.company_id;
-        console.log("This is user data: ", companyId);
+        // console.log("This is user data: ", companyId);
 
         // Check if the company ID matches the admin ID and fetch all projects
-        if (companyId.toString() === "67eb7ca87d739618755ffec3") {
-            const projects = await Project.find();
-            console.log(`This is company data for admin: ${projects}`);
+        // if (companyId.toString() === "67eb7ca87d739618755ffec3") {
+        //     const projects = await Project.find();
+        //     // console.log(`This is company data for admin: ${projects}`);
             
-            // Change status code to 200 (OK) instead of 204
-            return res.status(200).json({
-                message: "Projects fetched successfully",
-                projects
-            });
-        }
+        //     // Change status code to 200 (OK) instead of 204
+        //     return res.status(200).json({
+        //         message: "Projects fetched successfully",
+        //         projects
+        //     });
+        // }
 
         // Validate companyId for other users
         if (!companyId) {
             return res.status(400).json({ message: "Company ID is required" });
         }
 
-        // Fetch projects based on the companyId
-        const projects = await Project.find({ companyId });
+        // Fetch user's permission locations
+        const companyPermission = await Company.findOne({ company_email: req.user.email }).select("permission_location");
+
+        if (!companyPermission || !companyPermission.permission_location.length) {
+            return res.status(403).json({ message: "You don't have permission to access any projects" });
+        }
+
+        console.log("User's permission locations:", companyPermission.permission_location);
+
+        // Fetch all projects
+        const allProjects = await Project.find();
+        console.log(allProjects);
+
+        // Filter projects based on user's location permissions
+        const filteredProjects = allProjects.filter(project => {
+            return companyPermission.permission_location.some(permission => 
+                permission.country === project.country &&
+                permission.state === project.state &&
+                permission.city.includes(project.city)
+            );
+        });
+
+        // return res.status(200).json({ message: "ram ram", projects: filteredProjects });
 
         return res.status(200).json({
             message: "Projects fetched successfully",
-            projects
+            projects: filteredProjects
         });
 
     } catch (error) {
@@ -151,6 +173,7 @@ module.exports.HandleAllProjects = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
 
 
 
@@ -475,6 +498,7 @@ module.exports.HandleChartData = async (req, res) => {
 
 const axios = require("axios");      // For making HTTP requests
 const cheerio = require("cheerio");  // For web scraping
+const Company = require('../models/company/company');
   
 module.exports.HandleGetDMdata = async (req, res) => {
     try {

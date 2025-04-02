@@ -8,12 +8,10 @@ const Graph = require('../models/Graphmodal/graphdata');
 module.exports.HandleAddGraphData = async (req, res) => {
     try {
         const { sector, cost } = req.body;
-
-        // ✅ Validate required fields
+ 
         if (!sector || !cost) {
             return res.status(400).json({ message: "Sector and Cost are required." });
-        }
-        // ✅ Create new sector entry
+        } 
         const newSector = new Graph({ sector, cost });
         await newSector.save();
 
@@ -30,11 +28,9 @@ module.exports.HandleAddGraphData = async (req, res) => {
 // apt to show all data of Graph
 
 module.exports.HandleShowGraphdata = async (req, res) => {
-    try {
-        // ✅ Fetch all data from the database
+    try { 
         const graphData = await Graph.find();
-
-        // ✅ Check if data exists
+ 
         if (!graphData.length) {
             return res.status(404).json({ message: "No graph data found." });
         }
@@ -48,7 +44,6 @@ module.exports.HandleShowGraphdata = async (req, res) => {
 
 
 // api to delete the data of graph 
-
 module.exports.HandleDeleteGraphData = async (req, res) => {
     try {
         const graphId = req.headers['x-graph-id'];
