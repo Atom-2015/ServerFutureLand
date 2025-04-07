@@ -164,13 +164,18 @@ module.exports.HandleCreateSession = async (req, res) => {
       console.log("This is body " ,req.body);
           
       const company = await Company.findOne({ company_email: req.body.email });
-      console.log("this is company data in db " , company)
+
+      // console.log("this is company data in db " , company)
       if (!company) {
           return res.status(400).json({ message: 'company not found' });
       }        
       if (company.password !== req.body.password) {
           return res.status(400).json({ message: 'Invalid password' });
       }
+      if (new Date(company.company_expiry) < new Date()) {
+        return res.status(400).json({ message: 'Company Plan Expired ' });
+      }
+      
       // if(company.isMaster){
       //   console.log("master company")
       // } 

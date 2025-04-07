@@ -5,9 +5,9 @@ module.exports.HandleStoreProjects = async (req, res) => {
     try {
         // Extract company ID from headers
         // const companyId = req.headers['x-company-id'];
-        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name ,population, districtMagistrate,registrarOffice , circleRate , documentFile } = req.body;
+        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name, population, districtMagistrate, registrarOffice, circleRate, area, areaUnit, circleRateUnit, documentFile } = req.body;
 
-        console.log(`this is user data ${JSON.stringify(req.user , null , " ")}`);
+        console.log(`this is user data ${JSON.stringify(req.user, null, " ")}`);
         const id = req.user.company_id
 
         // console.log("companyId:", companyId);
@@ -27,9 +27,9 @@ module.exports.HandleStoreProjects = async (req, res) => {
         // console.log("registrarOffice:", registrarOffice);   
         // console.log("circleRate:", circleRate);
         console.log("sectdocumentFileor:", documentFile);
-        
+
         // Validate required fields
-        if (    !status  || !sector || !country || !state || !city) {
+        if (!status || !sector || !country || !state || !city) {
             return res.status(400).json({ message: "Missing Data" });
         }
 
@@ -40,7 +40,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
 
         // Create a new project entry
         const response = await Project.create({
-            companyId:id,
+            companyId: id,
             startDate,
             endDate,
             contractor,
@@ -49,22 +49,25 @@ module.exports.HandleStoreProjects = async (req, res) => {
             sector,
             country,
             state,
+            area,
+            areaUnit,
             city,
             documentFile,
             project_name,
-            district: {   
-                registrarOffice,    
+            district: {
+                registrarOffice,
                 circleRate,
                 population,
-                districtMagistrate
+                districtMagistrate,
+                circleRateUnit
             }
         });
         if (kml.length > 0) {
             response.kml.push(...kml.map(file => ({ url: file })));
             await response.save();
         }
-        
-        
+
+
 
         return res.status(201).json({
             message: "Project created successfully",
@@ -95,7 +98,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
 //                 projects2
 //             })
 //         }
-        
+
 
 //         // Validate companyId
 //         if (!companyId) {
@@ -116,7 +119,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
 // };
 
 module.exports.HandleAllProjects = async (req, res) => {
-    try { 
+    try {
         // console.log(req.user)
         const companyId = req.user.company_id;
         // console.log("This is user data: ", companyId);
@@ -125,7 +128,7 @@ module.exports.HandleAllProjects = async (req, res) => {
         if (companyId.toString() === "67eb7ca87d739618755ffec3") {
             const projects = await Project.find();
             // console.log(`This is company data for admin: ${projects}`);
-            
+
             // Change status code to 200 (OK) instead of 204
             return res.status(200).json({
                 message: "Projects fetched successfully",
@@ -153,7 +156,7 @@ module.exports.HandleAllProjects = async (req, res) => {
 
         // Filter projects based on user's location permissions
         const filteredProjects = allProjects.filter(project => {
-            return companyPermission.permission_location.some(permission => 
+            return companyPermission.permission_location.some(permission =>
                 permission.country === project.country &&
                 permission.state === project.state &&
                 permission.city.includes(project.city)
@@ -242,35 +245,53 @@ module.exports.HandleSpeedoMeterData = async (req, res) => {
 
     try {
 
-        // if(req.user.company_id === "")
-    
+        if (req.user.company_id === "67eb7ca87d739618755ffec3") {
+            const allProjects = await Project.find();
+            const pastDate = new Date();
+            pastDate.setDate(pastDate.getDate() - days);
+
+            // Filter projects that were created within the specified days
+            var recentProjects = allProjects.filter(project =>
+                new Date(project.createdAt) >= pastDate
+            );
+        } else {
+            // const companyPermission = await Company.findById(companyId).select("permission_location");
+            const companyPermission = await Company.findOne({ company_email: req.user.email }).select("permission_location");
+            // console.log("This is compony permission " + companyPermission);
+
+            if (!companyPermission) {
+                return res.status(404).json({ message: "Company not found or no permissions" });
+            }
+
+            const allProjects = await Project.find();
+            // console.log("This is all project " , allProjects)
+            const filteredProjects = allProjects.filter(project => {
+                return companyPermission.permission_location.some(permission => {
+                    const permittedCities = permission.city.split(',').map(c => c.trim());
+                    return (
+                        permission.country === project.country &&
+                        permission.state === project.state &&
+                        permittedCities.includes(project.city)
+                    );
+                });
+            });
 
 
-        const companyPermission = await Company.findById(companyId).select("permission_location");
+            // console.log("This is the filtered projects", filteredProjects.length);
 
-        if (!companyPermission) {
-            return res.status(404).json({ message: "Company not found or no permissions" });
+            const pastDate = new Date();
+            pastDate.setDate(pastDate.getDate() - days);
+
+            // Filter projects that were created within the specified days
+            var recentProjects = filteredProjects.filter(project =>
+                new Date(project.createdAt) >= pastDate
+            );
         }
 
-        const allProjects = await Project.find();
-        const filteredProjects = allProjects.filter(project => 
-            companyPermission.permission_location.some(permission => 
-                permission.country === project.country &&
-                permission.state === project.state &&
-                permission.city.includes(project.city)
-            )
-        );
 
-        console.log("This is the filtered projects", filteredProjects);
 
-        const pastDate = new Date();
-        pastDate.setDate(pastDate.getDate() - days);
 
-        // Filter projects that were created within the specified days
-        const recentProjects = filteredProjects.filter(project => 
-            new Date(project.createdAt) >= pastDate
-        );
-
+        // console.log('project data ', recentProjects.length)
         return res.status(200).json({
             message: "Speedometer data fetched successfully",
             data: recentProjects.length
@@ -351,15 +372,15 @@ module.exports.HandleDeleteProject = async (req, res) => {
 
 module.exports.HandleUpdateProject = async (req, res) => {
     const projectId = req.headers['x-project-id'];
-    
+
     if (!projectId) {
         return res.status(400).json({ message: "Project ID is required" });
     }
 
     try {
         const updatedProject = await Project.findByIdAndUpdate(
-            projectId,   
-            req.body,    
+            projectId,
+            req.body,
             { new: true, runValidators: true }
         );
 
@@ -382,18 +403,18 @@ module.exports.HandleUpdateProject = async (req, res) => {
 
 // api to get/retrive the data of kml 
 
-module.exports.HandleGetKml = async(req , res)=>{
+module.exports.HandleGetKml = async (req, res) => {
     const projectId = req.headers['x-project-id'];
     if (!projectId) {
         return res.status(400).json({ message: "Project ID is required" });
     }
     try {
-        const response = await Project.findById( projectId ).select(" kml ");
-// console.log(response)
+        const response = await Project.findById(projectId).select(" kml ");
+        // console.log(response)
         if (!response) {
             return res.status(404).json({ message: "Project not found" });
         }
-        return res.status(200).json({ message: "Project data retrieved successfully", data: response})
+        return res.status(200).json({ message: "Project data retrieved successfully", data: response })
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
@@ -450,7 +471,17 @@ module.exports.HandleGetKml = async(req , res)=>{
 module.exports.HandleChartData = async (req, res) => {
     try {
         const companyid = req.user.company_id;
-        const graphdata = await Project.find({ companyId: companyid });
+        let graphdata = [];
+
+        if (companyid === "67eb7ca87d739618755ffec3") {
+            graphdata = await Project.find({});
+        } else {
+            graphdata = await Project.find({ companyId: companyid });
+        }
+
+        if (!graphdata || graphdata.length === 0) {
+            return res.status(404).json({ message: "No project data found" });
+        }
 
         const chartData = {
             sectors: {},
@@ -459,19 +490,16 @@ module.exports.HandleChartData = async (req, res) => {
                 "100-500": 0,
                 "500-1000": 0,
                 "1000-5000": 0,
-                "5000+": 0  
+                "5000+": 0
             },
-            countryData: {} // New country-wise data structure
+            countryData: {}
         };
 
         graphdata.forEach((project) => {
             const { country, state, sector, cost } = project;
 
             // Count Sectors
-            if (!chartData.sectors[sector]) {
-                chartData.sectors[sector] = 0;
-            }
-            chartData.sectors[sector]++;
+            chartData.sectors[sector] = (chartData.sectors[sector] || 0) + 1;
 
             // Categorize Monetary Ranges
             if (cost >= 1 && cost < 100) chartData.MonetaryRange["1-100"]++;
@@ -482,9 +510,7 @@ module.exports.HandleChartData = async (req, res) => {
 
             // Country-wise State Data
             if (!chartData.countryData[country]) {
-                chartData.countryData[country] = {
-                    states: new Set() // Using Set to avoid duplicate states
-                };
+                chartData.countryData[country] = { states: new Set() };
             }
             chartData.countryData[country].states.add(state);
         });
@@ -494,26 +520,29 @@ module.exports.HandleChartData = async (req, res) => {
             chartData.countryData[country].states = [...chartData.countryData[country].states];
         });
 
-        res.status(200).json({
+        // Send response only once
+        return res.status(200).json({
             message: "Chart data fetched successfully",
             data: chartData
         });
 
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        console.error("Error fetching chart data:", error);
+        return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
 
 
 
-  
+
+
 
 
 
 const axios = require("axios");      // For making HTTP requests
 const cheerio = require("cheerio");  // For web scraping
 const Company = require('../models/company/company');
-  
+
 module.exports.HandleGetDMdata = async (req, res) => {
     try {
         const city = req.query.city;

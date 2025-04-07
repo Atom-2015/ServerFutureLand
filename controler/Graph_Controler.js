@@ -62,3 +62,39 @@ module.exports.HandleDeleteGraphData = async (req, res) => {
     }
 };
 
+
+
+
+
+
+// Api to Update the Graph Data 
+module.exports.HandleUpdateGraphData = async (req, res) => {
+    try {
+        const { id } = req.params;  
+        const { sector, cost } = req.body;
+
+        if (!id) {
+            return res.status(400).json({ message: "ID is required." });
+        }
+
+        if (!sector || !cost) {
+            return res.status(400).json({ message: "Sector and Cost are required." });
+        }
+
+        const updatedSector = await Graph.findByIdAndUpdate(
+            id,
+            { sector, cost },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedSector) {
+            return res.status(404).json({ message: "Sector not found." });
+        }
+
+        res.status(200).json({ message: "Sector data updated successfully!", data: updatedSector });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message || "Server Error" });
+    }
+};
+

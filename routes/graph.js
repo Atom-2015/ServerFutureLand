@@ -9,7 +9,13 @@ router.post('/storegraphdata' , GraphControler.HandleAddGraphData);
 
 
 
-router.get('/getGraphdata' , GraphControler.HandleShowGraphdata )
+router.get('/getGraphdata' , GraphControler.HandleShowGraphdata );
+
+
+router.delete('/deleteGraphData' , GraphControler.HandleDeleteGraphData);
+
+
+router.put('/updateGraphData/:id' , GraphControler.HandleUpdateGraphData);
 
 
 

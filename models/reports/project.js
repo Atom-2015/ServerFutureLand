@@ -56,6 +56,17 @@ const ProjectSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    area: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    areaUnit: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    
     kml: [
       {
         url: {
@@ -85,6 +96,11 @@ const ProjectSchema = new mongoose.Schema(
         type: Number,
         // required: true,
         min: 0,
+      },
+      circleRateUnit: {
+        type: String,
+        required: true,
+        trim: true,
       },
        
     },
