@@ -1,4 +1,5 @@
 const Project = require('../models/reports/project');
+const Projection = require('../models/ProjectDetailsProjection/projection')
 
 
 module.exports.HandleStoreProjects = async (req, res) => {
@@ -62,6 +63,22 @@ module.exports.HandleStoreProjects = async (req, res) => {
                 circleRateUnit
             }
         });
+        
+        const projectiondata = await Projection.create({
+            project_id: response._id,
+            transportation_access,
+            nearest_infra,
+            social_impact,
+            population,
+            job_impact,
+            land_price, 
+        });
+        if(!projectiondata){
+            return res.status(402).json({
+                message: "Error creating projection"
+            })
+        }
+
         if (kml.length > 0) {
             response.kml.push(...kml.map(file => ({ url: file })));
             await response.save();
@@ -72,6 +89,7 @@ module.exports.HandleStoreProjects = async (req, res) => {
         return res.status(201).json({
             message: "Project created successfully",
             project: response,
+            projection: projectiondata
         });
     } catch (error) {
         console.error("Error storing project:", error);
@@ -162,8 +180,9 @@ module.exports.HandleAllProjects = async (req, res) => {
                 permission.city.includes(project.city)
             );
         });
-
+         console.log(filteredProjects)
         // return res.status(200).json({ message: "ram ram", projects: filteredProjects });
+
 
         return res.status(200).json({
             message: "Projects fetched successfully",
@@ -537,61 +556,7 @@ module.exports.HandleChartData = async (req, res) => {
 
 
 
-
-
-const axios = require("axios");      // For making HTTP requests
-const cheerio = require("cheerio");  // For web scraping
-const Company = require('../models/company/company');
-
-module.exports.HandleGetDMdata = async (req, res) => {
-    try {
-        const city = req.query.city;
-        if (!city) {
-            return res.status(400).json({ error: "City parameter is required" });
-        }
-
-        // Construct the Wikipedia URL for the city district
-        const wikiUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(city)}_district`;
-
-        const { data } = await axios.get(wikiUrl, {
-            headers: {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            },
-        });
-
-        const $ = cheerio.load(data);
-        let dmInfo = "";
-
-        // Try to extract the DM name from Wikipedia's infobox
-        $("table.infobox tr").each((index, element) => {
-            const key = $(element).find("th").text().trim();
-            const value = $(element).find("td").text().trim();
-
-            if (key.includes("District magistrate") || key.includes("DM") || key.includes("Collector")) {
-                dmInfo = value;
-                return false; // Stop loop once we find the DM
-            }
-        });
-
-        // If Wikipedia fails, fetch DM name from ChatGPT's internal tool
-        if (!dmInfo) {
-            dmInfo = await getDMFromChatGPT(city);
-        }
-
-        return res.json({ city, dm_name: dmInfo || "Not Found" });
-
-    } catch (error) {
-        return res.status(500).json({ error: "Error fetching data", details: error.message });
-    }
-};
-
-// Function to fetch DM details from ChatGPT's internal tool
-async function getDMFromChatGPT(city) {
-    // I will fetch the latest DM name for you
-    const dm_name = await fetchDMFromInternalTool(city);
-    return dm_name || "Not Found";
-}
-
+ 
 
 
 

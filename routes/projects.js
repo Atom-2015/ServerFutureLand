@@ -47,10 +47,7 @@ router.get('/getkml' , ProjectControler.HandleGetKml);
 
 router.get('/chartdata' , isAuthenticated , ProjectControler.HandleChartData);
 
-
-
-router.get('/getDm' , ProjectControler.HandleGetDMdata);
-
+ 
 
 
 
