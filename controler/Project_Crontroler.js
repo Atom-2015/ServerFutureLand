@@ -1,32 +1,18 @@
 const Project = require('../models/reports/project');
 const Projection = require('../models/ProjectDetailsProjection/projection')
+const Company = require('../models/company/company')
 
 
 module.exports.HandleStoreProjects = async (req, res) => {
     try {
         // Extract company ID from headers
         // const companyId = req.headers['x-company-id'];
-        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name, population, districtMagistrate, registrarOffice, circleRate, area, areaUnit, circleRateUnit, documentFile } = req.body;
+        const { startDate, endDate, contractor, cost, status, kml, sector, country, state, city, project_name, population, districtMagistrate, registrarOffice, circleRate, area, areaUnit, circleRateUnit, documentFile, transportation_access, nearest_infra, social_impact, population_projection, job_impact, land_price } = req.body;
 
         console.log(`this is user data ${JSON.stringify(req.user, null, " ")}`);
         const id = req.user.company_id
 
-        // console.log("companyId:", companyId);
-        // console.log("startDate:", startDate);
-        // console.log("endDate:", endDate);
-        // console.log("contractor:", contractor);
-        // console.log("cost:", cost);
-        // console.log("status:", status);
-        // console.log("kml:", kml);
-        // console.log("sector:", sector);
-        // console.log("country:", country);
-        // console.log("state:", state);
-        // console.log("city:", city);
-        // console.log("project_name:", project_name);
-        // console.log("population:", population);
-        // console.log("districtMagistrate:", districtMagistrate);
-        // console.log("registrarOffice:", registrarOffice);   
-        // console.log("circleRate:", circleRate);
+        // console.log("companyId:", companyId); // console.log("startDate:", startDate); // console.log("endDate:", endDate); // console.log("contractor:", contractor); // console.log("cost:", cost); // console.log("status:", status); // console.log("kml:", kml); // console.log("sector:", sector); // console.log("country:", country); // console.log("state:", state); // console.log("city:", city); // console.log("project_name:", project_name); // console.log("population:", population); // console.log("districtMagistrate:", districtMagistrate); // console.log("registrarOffice:", registrarOffice); // console.log("circleRate:", circleRate);
         console.log("sectdocumentFileor:", documentFile);
 
         // Validate required fields
@@ -39,10 +25,30 @@ module.exports.HandleStoreProjects = async (req, res) => {
         //     return res.status(400).json({ message: "Invalid KML data" });
         // }
 
+
+        // console.log(transportation_access ,nearest_infra , social_impact , population_projection , job_impact , land_price)
+         
+
+        const projectiondata = await Projection.create({
+
+            transportation_access,
+            nearest_infra,
+            social_impact,
+            population_projection,
+            job_impact,
+            land_price,
+        });
+        if (!projectiondata) {
+            return res.status(402).json({
+                message: "Error creating projection"
+            })
+        }
+
         // Create a new project entry
         const response = await Project.create({
             companyId: id,
             startDate,
+            projection_id: projectiondata._id,
             endDate,
             contractor,
             cost,
@@ -63,24 +69,14 @@ module.exports.HandleStoreProjects = async (req, res) => {
                 circleRateUnit
             }
         });
-        
-        const projectiondata = await Projection.create({
-            project_id: response._id,
-            transportation_access,
-            nearest_infra,
-            social_impact,
-            population,
-            job_impact,
-            land_price, 
-        });
-        if(!projectiondata){
-            return res.status(402).json({
-                message: "Error creating projection"
-            })
-        }
+        // console.log(`this is the data of project ${JSON.stringify(response._id)}`);
+        // Link the created project to the projection
+        projectiondata.projectid = response._id;
+        await projectiondata.save();
+
 
         if (kml.length > 0) {
-            response.kml.push(...kml.map(file => ({ url: file })));
+            response.kml.push(...kml.map(file => ({ url: file.url })));
             await response.save();
         }
 
@@ -144,7 +140,7 @@ module.exports.HandleAllProjects = async (req, res) => {
 
         // Check if the company ID matches the admin ID and fetch all projects
         if (companyId.toString() === "67eb7ca87d739618755ffec3") {
-            const projects = await Project.find();
+            const projects = await Project.find().populate("projection_id").exec();
             // console.log(`This is company data for admin: ${projects}`);
 
             // Change status code to 200 (OK) instead of 204
@@ -169,6 +165,7 @@ module.exports.HandleAllProjects = async (req, res) => {
         console.log("User's permission locations:", companyPermission.permission_location);
 
         // Fetch all projects
+
         const allProjects = await Project.find();
         // console.log(allProjects);
 
@@ -180,7 +177,7 @@ module.exports.HandleAllProjects = async (req, res) => {
                 permission.city.includes(project.city)
             );
         });
-         console.log(filteredProjects)
+        console.log(filteredProjects)
         // return res.status(200).json({ message: "ram ram", projects: filteredProjects });
 
 
@@ -556,7 +553,7 @@ module.exports.HandleChartData = async (req, res) => {
 
 
 
- 
+
 
 
 

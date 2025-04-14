@@ -5,7 +5,7 @@ const ProjectionSchema = new mongoose.Schema(
     projectid:{
       type:mongoose.Schema.Types.ObjectId,
       ref:'Project',
-      required:true,
+      // required:true,
     },
     transportation_access:{
         type: Boolean,
@@ -19,7 +19,7 @@ const ProjectionSchema = new mongoose.Schema(
         type: Boolean,
         default: false,
     },
-    population:{
+    population_projection:{
         type: Boolean,
         default: false,
     },
@@ -30,8 +30,7 @@ const ProjectionSchema = new mongoose.Schema(
     nearest_infra:{
         type: Boolean,
         default: false,
-    },
-    
+    },  
        
    
   },

@@ -51,6 +51,11 @@ const ProjectSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    projection_id:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Projection',
+      required: true
+    },
     city: {
       type: String,
       required: true,
