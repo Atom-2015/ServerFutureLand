@@ -3,6 +3,7 @@ const router = express.Router();
 const MainControler =require('../controler/Main_Controler'); 
 const ProjectControler = require('../controler/Project_Crontroler')
 const isAuthenticated = require('../middleware/isAuth')
+const ProjectionControler = require('../controler/ProjectionControler')
 
 
  
@@ -52,7 +53,15 @@ router.get('/chartdata' , isAuthenticated , ProjectControler.HandleChartData);
 
 
  
+// ******************************************* Projection Route *******************************************
+router.post('/addTraskportProjection' , isAuthenticated , ProjectionControler.HandleAddTransportAccess);
 
+
+// get transport data 
+router.get('/getTransportProjection' , isAuthenticated , ProjectionControler.HandleGetProjectionDetails);
+
+// post api to store the data of transport projection
+router.post('/addNearestLocation'  ,ProjectionControler.HandleAddNearestInfra);
 
 
  module.exports = router; 

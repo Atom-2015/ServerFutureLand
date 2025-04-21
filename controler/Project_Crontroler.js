@@ -166,7 +166,7 @@ module.exports.HandleAllProjects = async (req, res) => {
 
         // Fetch all projects
 
-        const allProjects = await Project.find();
+        const allProjects = await Project.find().populate("projection_id").exec();
         // console.log(allProjects);
 
         // Filter projects based on user's location permissions
@@ -547,6 +547,7 @@ module.exports.HandleChartData = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
 
 
 
