@@ -70,20 +70,22 @@ module.exports.HandleGetProjectionDetails = async (req, res) => {
 
 // // api to add nearest Infra access details
 module.exports.HandleAddNearestInfra = async (req, res) => {
-  const nearest_infrastructure = req.body;
+  const nearest_infrastructure = req.body.nearest_infrastructure;
+  console.log(req.body)
   const projectid = req.headers['x-project-id'];
   // console.log(`Project data ${nearest_infrastructure} , projectid ${projectid}`)
-  if (!nearest_infrastructure || !Array.isArray(nearest_infrastructure) || nearest_infrastructure.length === 0 || !projectid) {
+  if (!nearest_infrastructure || !Array.isArray(nearest_infrastructure) || nearest_infrastructure.length === 0 ||      !projectid) {
+    console.log('thsisiiiii',projectid,nearest_infrastructure)
     return res.status(400).json({ message: "Fields Missing" });
   }
 
-  for (const val of nearest_infrastructure) {
-    if (!val.value || !val.name || !val.type) {
-      return res.status(400).json({
-        message: "All fields must be filled out"
-      });
-    }
-  }
+  // for (const val of nearest_infrastructure) {
+  //   if (!val.value || !val.name || !val.type) {
+  //     return res.status(400).json({
+  //       message: "All fields must be filled out"
+  //     });
+  //   }
+  // }
 
   try {
     let projectionDetail = await ProjectDetails.findOne({ projectid });
