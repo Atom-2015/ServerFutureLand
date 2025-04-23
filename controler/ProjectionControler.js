@@ -113,23 +113,33 @@ module.exports.HandleAddNearestInfra = async (req, res) => {
 
 
 // api to get the detail of projection details 
-module.exports.HandleGetNearest_infrastructure = async (req, res) => {
-  const projectid = req.headers['x-project-id']; // spelling fix from `heders` to
+module.exports.HandleDeleteTransportDetail = async (req, res) => {
+  const projectionDetailId = req.headers['x-projection-id'];  
+  const deleteDataId = req.headers['x-deletedata-id'];
+
   try {
-    if (!projectid) {
-      return res.status(400).json({ message: "Project ID is missing" })
+    if (!projectionDetailId || !deleteDataId) {
+      return res.status(400).json({ message: "Missing IDs" });
     }
-    let projectionDetail = await ProjectDetails.findOne({ projectid });
+
+    let projectionDetail = await ProjectDetails.findById(projectionDetailId);
+
     if (!projectionDetail) {
-      return res.status(206).json({ message: "Projection details not found" });
+      return res.status(404).json({ message: "Projection details not found" });
     }
+
+    // Use pull to remove subdocument by _id
+    projectionDetail.transport_detail.pull({ _id: deleteDataId });
+
+    await projectionDetail.save();
+    console.log(projectionDetail)
+
     return res.status(200).json({
-      message: "Projection details found",
+      message: "Transport detail deleted successfully",
       data: projectionDetail
-    })
+    });
   } catch (error) {
-    console.error("Error in HandleAddTransportAccess:", error);
+    console.error("Error in HandleDeleteTransportDetail:", error);
     return res.status(500).json({ message: "Server error", error });
   }
-}
-
+};

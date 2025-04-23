@@ -63,6 +63,9 @@ router.get('/getTransportProjection' , isAuthenticated , ProjectionControler.Han
 // post api to store the data of transport projection
 router.post('/addNearestLocation'  ,ProjectionControler.HandleAddNearestInfra);
 
+// Api to delete transportData
+router.delete('/transportdelete' , ProjectionControler.HandleDeleteTransportDetail);
+
 
  module.exports = router; 
 
