@@ -32,6 +32,8 @@ const ProjectionDetailSchema = new mongoose.Schema(
       },
     }]
 
+    
+
   },
 
   { timestamps: true }

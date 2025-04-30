@@ -3,7 +3,8 @@ const router = express.Router();
 const MainControler =require('../controler/Main_Controler'); 
 const ProjectControler = require('../controler/Project_Crontroler')
 const isAuthenticated = require('../middleware/isAuth')
-const ProjectionControler = require('../controler/ProjectionControler')
+const ProjectionControler = require('../controler/ProjectionControler');
+const Projection = require('../models/ProjectDetailsProjection/projection');
 
 
  
@@ -65,6 +66,14 @@ router.post('/addNearestLocation'  ,ProjectionControler.HandleAddNearestInfra);
 
 // Api to delete transportData
 router.delete('/transportdelete' , ProjectionControler.HandleDeleteTransportDetail);
+
+// api to store the data of job impact 
+router.post('/storejob' , ProjectionControler.HandleSoreJobImpact);
+router.post('/storePopulation' , ProjectionControler.HandleStorePopulationTrend);
+router.post('/storeLandPrice' , ProjectionControler.HandleStoreLandPrice);
+
+// api to get the data of graph data
+router.get('/getGraphData' , ProjectionControler.HandleshowGraphData);
 
 
  module.exports = router; 
