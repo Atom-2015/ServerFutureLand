@@ -353,50 +353,104 @@ module.exports.HandleGetProjectionDetails = async (req, res) => {
 };
 
 
-// api to update projectin Graph Data
-module.exports.HandleEditProjectionGraphData = async (req, res) => {
+// // api to update projectin Graph Data
+// module.exports.HandleEditProjectionGraphData = async (req, res) => {
+//   try {
+//     const projectid = req.headers['x-project-id'];
+//     const editElementid = req.headers['x-updatedata-id'];
+//     const editElementName = req.headers['x-target-graph'];
+//     const  count  = req.body.count;
+
+//     if (!projectid || !editElementName || !editElementid) {
+//       return res.status(403).json({ message: "Missing Data" });
+//     }
+
+//     const response = await ProjectionGraphData.findOne({projectid:projectid});
+//     if (!response) {
+//       return res.status(404).json({ message: "No Projection Found" });
+//     }
+
+//     // Find the element to update inside the correct array
+//     const targetArray = response[editElementName];
+//     if (!Array.isArray(targetArray)) {
+//       return res.status(400).json({ message: "Invalid element name" });
+//     }
+
+//     const elementToUpdate = targetArray.find(
+//       (item) => item._id.toString() === editElementid
+//     );
+
+//     if (!elementToUpdate) {
+//       return res.status(404).json({ message: "Element not found in array" });
+//     }
+
+//     // Update values
+//     // if (year !== undefined) elementToUpdate.year = year;
+//     if (count !== undefined) elementToUpdate.count = count;
+
+//     await response.save();
+
+//     return res.status(200).json({
+//       message: "Updation Completed",
+//       data: response,
+//     });
+
+//   } catch (error) {
+//     console.error("Error in HandleEditProjectionGraphData:", error);
+//     return res.status(500).json({ message: "Server error", error });
+//   }
+// };
+
+
+
+
+// api to update the data of graph
+module.exports.HandleUpdateProjectGraphData = async (req, res) => {
   try {
-    const projectionGraphId = req.headers['x-graph-id'];
-    const editElementid = req.headers['x-element-id'];
-    const editElementName = req.headers['x-name-id'];
-    const { year, count } = req.body;
+    const projectid = req.headers['x-project-id'];
+    const targetGraph = req.headers['x-target-graph'];
+    const updateDataId = req.headers['x-updatedata-id'];
+    const newCount = req.body.count;
 
-    if (!projectionGraphId || !editElementName || !editElementid) {
-      return res.status(403).json({ message: "Missing Data" });
+    if (!projectid || !targetGraph || !updateDataId || newCount === undefined) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const response = await ProjectionGraphData.findById(projectionGraphId);
+    const validGraphs = ['job_impact', 'population_trend', 'land_price_predection'];
+    if (!validGraphs.includes(targetGraph)) {
+      return res.status(400).json({ message: "Invalid targetGraph" });
+    }
+
+    let response = await ProjectionGraphData.findOne({ projectid });
     if (!response) {
-      return res.status(404).json({ message: "No Projection Found" });
+      return res.status(404).json({ message: "Project not found" });
     }
 
-    // Find the element to update inside the correct array
-    const targetArray = response[editElementName];
-    if (!Array.isArray(targetArray)) {
-      return res.status(400).json({ message: "Invalid element name" });
+    // ✅ Update the subdocument directly
+    let updated = false;
+    response[targetGraph].forEach(item => {
+      if (item._id.toString() === updateDataId) {
+        item.count = newCount;
+        updated = true;
+      }
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Data entry not found for update" });
     }
-
-    const elementToUpdate = targetArray.find(
-      (item) => item._id.toString() === editElementid
-    );
-
-    if (!elementToUpdate) {
-      return res.status(404).json({ message: "Element not found in array" });
-    }
-
-    // Update values
-    if (year !== undefined) elementToUpdate.year = year;
-    if (count !== undefined) elementToUpdate.count = count;
 
     await response.save();
 
     return res.status(200).json({
-      message: "Updation Completed",
-      data: response,
+      message: "Graph data updated successfully",
+      data: response
     });
 
   } catch (error) {
-    console.error("Error in HandleEditProjectionGraphData:", error);
-    return res.status(500).json({ message: "Server error", error });
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message
+    });
   }
 };
+

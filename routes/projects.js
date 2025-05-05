@@ -75,6 +75,10 @@ router.post('/storeLandPrice' , ProjectionControler.HandleStoreLandPrice);
 // api to get the data of graph data
 router.get('/getGraphData' , ProjectionControler.HandleshowGraphData);
 
+// end point to update graph
+router.put('/updateProjectGraph' , ProjectionControler.HandleUpdateProjectGraphData);
+
+
 
  module.exports = router; 
 
