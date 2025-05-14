@@ -26,7 +26,7 @@ module.exports.HandleAddGraphData = async (req, res) => {
 
 
 // apt to show all data of Graph
-
+    
 module.exports.HandleShowGraphdata = async (req, res) => {
     try { 
         const graphData = await Graph.find();

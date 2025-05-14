@@ -1,42 +1,20 @@
 // Api to store the data of the blog iamge url and blog content 
 //  Title	Read Time	Date	Image	Link
 
-const Company = require('../models/company/company')
+// const Blog = require('../models/Blogs/blogs')
+const Blog = require('../models/Blogs/blogs')
 
 
 module.exports.HandleAddBlog = async (req, res) => {
     try {
-        // Extract Company ID from headers
-        const companyId = req.headers["x-company-id"];
-        if (!companyId) {
-            return res.status(400).json({ message: "Company ID is required" });
-        }
+        const { title, date, image, url } = req.body;
 
-        // Validate Company ID
-        const isCompanyValid = await Company.findById(companyId);
-        if (!isCompanyValid) {
-            return res.status(404).json({ message: "Invalid Company ID" });
-        }
-
-        // Extract Blog Data from Request Body
-        const { title, readTime, date, image, link } = req.body;
-
-        // Validate Required Fields
-        if (!title || !readTime || !date || !image || !link) {
+        if (![title, date, image, url].every(Boolean)) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        // Create a new blog entry
-        const newBlog = new Blog({
-            companyId,
-            title,
-            readTime,
-            date,
-            image,
-            link,
-        });
+        const newBlog = new Blog({ title, date, image, url });
 
-        // Save Blog to Database
         await newBlog.save();
 
         return res.status(201).json({ message: "Blog created successfully", blog: newBlog });
