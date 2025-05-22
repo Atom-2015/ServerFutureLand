@@ -1,9 +1,12 @@
 // const Blog = require('../models/Blogs/blogs')
 const Blog = require('../models/Blogs/blogs')
+const extractPublicIdFromUrl = require('../utils/cloudinaryAccessId');
+const deleteFromCloudinary = require('../utils/deleteFromCloudinary')
 
 
 module.exports.HandleAddBlog = async (req, res) => {
     try {
+        // console.log(req.body)
         const { title, date, image, url } = req.body;
 
         if (![title, date, image, url].every(Boolean)) {
@@ -52,6 +55,11 @@ module.exports.HandleDeleteBlog = async (req, res) => {
         }
         // const id = req.params.id;
         const blog = await Blog.findByIdAndDelete(blogId);
+        // console.log(blog)
+         const accessId = await extractPublicIdFromUrl(blog.image);
+         await deleteFromCloudinary(accessId)
+
+
 
         if (!blog) {
             return res.status(404).json({ message: "Blog not found" });
@@ -68,8 +76,9 @@ module.exports.HandleDeleteBlog = async (req, res) => {
 // api to update the blog data
 module.exports.HandleUpdateBlog = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { title, date, image, url } = req.body;
+        console.log(req.body.payload)
+        const  id  = req.body.payload.id;
+        const { title, date, image, url } = req.body.payload;
 
         // Check if ID is provided
         if (!id) {

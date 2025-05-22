@@ -29,6 +29,8 @@ router.use('/blog' , require('./blogs.js'));
 
 router.use('/graph' , require('./graph.js'))
 
+router.use('/citydetail' , require('./citydetail.js'))
+
 
 
 
